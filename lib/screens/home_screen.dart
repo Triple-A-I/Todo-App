@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:recipes/constants.dart';
+import 'package:recipes/models/task.dart';
 import 'package:recipes/screens/archived_tasks_screen.dart';
 import 'package:recipes/screens/done_tasks_screen.dart';
 import 'package:recipes/screens/new_tasks.dart';
 import 'package:recipes/screens/widgets/default_form_field.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var timeController = TextEditingController();
 
   final List<Widget> _screens = [
-    const NewTasksScreen(),
+    NewTasksScreen(),
     const DoneTasksScreen(),
     const ArchivedTasksScreen(),
   ];
@@ -44,26 +47,36 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(_titles[_currentIndex]),
         elevation: .5,
       ),
-      body: _screens[_currentIndex],
+      body: tasks.isEmpty
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : _screens[_currentIndex],
       floatingActionButton: FloatingActionButton(
         child: Icon(fabIcon),
         onPressed: () {
           if (isBottomSheetShowing) {
             if (formKey.currentState!.validate()) {
-              Navigator.pop(context);
-              isBottomSheetShowing = false;
-              setState(() {
-                fabIcon = Icons.edit;
+              insertIntoDatabase(titleController.text, timeController.text,
+                      dateController.text)
+                  .then((value) {
+                getDataFromDataFromDatabase(database).then((value) {
+                  Navigator.pop(context);
+                  setState(() {
+                    isBottomSheetShowing = false;
+                    fabIcon = Icons.edit;
+                    tasks = value;
+                  });
+                });
               });
-              scaffoldKey.currentState!
-                  .showSnackBar(SnackBar(content: new Text("Added Succfully")));
+
+              // scaffoldKey.currentState!
+              //     .showSnackBar(SnackBar(content: new Text("Added Succfully")));
             }
           } else {
-            scaffoldKey.currentState!.showBottomSheet(
-              (context) {
-                return SingleChildScrollView(
-                  child: Container(
-                    color: Colors.grey[200],
+            scaffoldKey.currentState!
+                .showBottomSheet(
+                  (context) => SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Form(
@@ -127,8 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   initialDate: DateTime.now(),
                                   context: context,
                                 ).then((value) {
-                                  dateController.text = value.toString();
-                                  print(value.toString());
+                                  dateController.text =
+                                      DateFormat.yMMMEd().format(value!);
                                 });
                               },
                               icon: Icons.calendar_today,
@@ -141,9 +154,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                );
-              },
-            );
+                  elevation: 15,
+                )
+                .closed
+                .then((value) {
+              // Navigator.pop(context);
+              isBottomSheetShowing = false;
+              titleController.text = '';
+              timeController.text = '';
+              dateController.text = '';
+              setState(() {
+                fabIcon = Icons.edit;
+              });
+            });
             isBottomSheetShowing = true;
             setState(() {
               fabIcon = Icons.add;
@@ -185,18 +208,29 @@ class _HomeScreenState extends State<HomeScreen> {
           print("Database created");
         }).catchError((error) {
           print("Error When Creating table ${error.toString()}");
+          showDialog(
+              context: context,
+              builder: (context) => Container(child: Text(error.toString())));
         });
       },
       onOpen: (database) {
+        getDataFromDataFromDatabase(database).then((value) {
+          setState(() {
+            tasks = value;
+          });
+          tasks.forEach((task) {
+            print(Task.fromJson(task).title);
+          });
+        });
         print("Database opened");
       },
     );
   }
 
-  Future<void> insertIntoDatabase() async {
-    database.transaction((txn) => txn
+  Future insertIntoDatabase(String title, String time, String date) async {
+    return await database.transaction((txn) => txn
             .rawInsert(
-                "INSERT INTO tasks(title, date, time, status) VALUES('First Task','12-1-2021','2121','new')")
+                "INSERT INTO tasks(title, date, time, status) VALUES('$title','$date','$time','new')")
             .then((value) {
           print("$value Inserted Successfully!!");
         }).catchError(
@@ -204,5 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
             print("Error When Inserting New Record ${error.toString()}");
           },
         ));
+  }
+
+  Future<List<Map>> getDataFromDataFromDatabase(database) async {
+    return await database.rawQuery("SELECT * FROM tasks");
   }
 }
