@@ -4,6 +4,8 @@ import 'package:recipes/models/task.dart';
 import 'package:recipes/screens/widgets/task_item.dart';
 
 class NewTasksScreen extends StatelessWidget {
+  const NewTasksScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(

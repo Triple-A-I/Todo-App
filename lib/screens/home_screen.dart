@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:recipes/constants.dart';
-import 'package:recipes/models/task.dart';
 import 'package:recipes/screens/archived_tasks_screen.dart';
 import 'package:recipes/screens/done_tasks_screen.dart';
 import 'package:recipes/screens/new_tasks.dart';
@@ -27,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var timeController = TextEditingController();
 
   final List<Widget> _screens = [
-    NewTasksScreen(),
+    const NewTasksScreen(),
     const DoneTasksScreen(),
     const ArchivedTasksScreen(),
   ];
@@ -204,13 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
         database
             .execute(
                 "CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT, status TEXT)")
-            .then((value) {
-          print("Database created");
-        }).catchError((error) {
-          print("Error When Creating table ${error.toString()}");
+            .then((value) {})
+            .catchError((error) {
           showDialog(
-              context: context,
-              builder: (context) => Container(child: Text(error.toString())));
+              context: context, builder: (context) => Text(error.toString()));
         });
       },
       onOpen: (database) {
@@ -218,25 +214,18 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             tasks = value;
           });
-          tasks.forEach((task) {
-            print(Task.fromJson(task).title);
-          });
         });
-        print("Database opened");
       },
     );
   }
 
   Future insertIntoDatabase(String title, String time, String date) async {
     return await database.transaction((txn) => txn
-            .rawInsert(
-                "INSERT INTO tasks(title, date, time, status) VALUES('$title','$date','$time','new')")
-            .then((value) {
-          print("$value Inserted Successfully!!");
-        }).catchError(
-          (error) {
-            print("Error When Inserting New Record ${error.toString()}");
-          },
+        .rawInsert(
+            "INSERT INTO tasks(title, date, time, status) VALUES('$title','$date','$time','new')")
+        .then((value) {})
+        .catchError(
+          (error) {},
         ));
   }
 
