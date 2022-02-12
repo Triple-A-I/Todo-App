@@ -13,12 +13,12 @@ part 'app_state.dart';
 class AppCubit extends Cubit<AppStates> {
   AppCubit() : super(AppInitialState());
 
-  int currentIndex = 0;
-  final List<String> titles = ['New Tasks', 'Done Tasks', 'Archived Tasks'];
+  int currentIndex = 1;
+  final List<String> titles = ['Done Tasks', 'New Tasks', 'Archived Tasks'];
 
   final List<Widget> screens = [
-    const NewTasksScreen(),
     const DoneTasksScreen(),
+    const NewTasksScreen(),
     const ArchivedTasksScreen(),
   ];
 
