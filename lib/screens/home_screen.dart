@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_app/business_logic/cubit/app_cubit.dart';
+import 'package:todo_app/constants.dart';
 import 'package:todo_app/widgets/bottom_navigation_bar.dart';
 import 'package:todo_app/widgets/default_form_field.dart';
 
@@ -22,7 +23,16 @@ class HomeScreen extends StatelessWidget {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (BuildContext context, AppStates state) {
         if (state is AppInsertIntoDatabaseState) {
+          ScaffoldMessenger.of(context).showSnackBar(showSnackBar(
+              context, 'Task with id ${state.id} Inserted Successfully'));
+
           Navigator.pop(context);
+        } else if (state is AppADoneTaskState) {
+          ScaffoldMessenger.of(context).showSnackBar(showSnackBar(
+              context, 'Task with id ${state.id} Done Successfully'));
+        } else if (state is AppArchiveTaskState) {
+          ScaffoldMessenger.of(context).showSnackBar(showSnackBar(
+              context, 'Task with id ${state.id} Archived Successfully'));
         }
       },
       builder: (BuildContext context, AppStates state) {
@@ -42,19 +52,8 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               if (appCubit.isBottomSheetShowing) {
                 if (formKey.currentState!.validate()) {
-                  appCubit
-                      .insertIntoDatabase(titleController.text,
-                          timeController.text, dateController.text)
-                      .then((value) {
-                    final snackBar = SnackBar(
-                        content: const Text('Inserted Successfully!'),
-                        backgroundColor: (Colors.black12),
-                        action: SnackBarAction(
-                          label: 'dismiss',
-                          onPressed: () {},
-                        ));
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  });
+                  appCubit.insertIntoDatabase(titleController.text,
+                      timeController.text, dateController.text);
 
                   // .then((value) {
                   //   appCubit
@@ -127,7 +126,7 @@ class HomeScreen extends StatelessWidget {
                                   onTap: () {
                                     showDatePicker(
                                       firstDate: DateTime.now(),
-                                      lastDate: DateTime.parse("2022-09-04"),
+                                      lastDate: DateTime.parse("2024-09-04"),
                                       initialDate: DateTime.now(),
                                       context: context,
                                     ).then((value) {
