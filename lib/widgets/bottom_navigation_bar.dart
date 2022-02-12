@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recipes/business_logic/cubit/app_cubit.dart';
+import 'package:todo_app/business_logic/cubit/app_cubit.dart';
 
 Widget bottomNavigationBar(BuildContext context) {
   AppCubit appCubit = AppCubit.get(context);

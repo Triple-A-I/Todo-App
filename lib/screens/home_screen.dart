@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:recipes/business_logic/cubit/app_cubit.dart';
-import 'package:recipes/widgets/bottom_navigation_bar.dart';
-import 'package:recipes/widgets/default_form_field.dart';
+import 'package:todo_app/business_logic/cubit/app_cubit.dart';
+import 'package:todo_app/widgets/bottom_navigation_bar.dart';
+import 'package:todo_app/widgets/default_form_field.dart';
 
 @immutable
 // ignore: must_be_immutable

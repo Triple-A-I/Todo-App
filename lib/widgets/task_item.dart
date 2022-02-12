@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recipes/models/task.dart';
+import 'package:todo_app/models/task.dart';
 
 Widget buildTaskItem(Task task) {
   return Padding(

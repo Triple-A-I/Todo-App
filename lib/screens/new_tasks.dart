@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:recipes/business_logic/cubit/app_cubit.dart';
-import 'package:recipes/models/task.dart';
-import 'package:recipes/widgets/task_item.dart';
+import 'package:todo_app/business_logic/cubit/app_cubit.dart';
+import 'package:todo_app/models/task.dart';
+import 'package:todo_app/widgets/task_item.dart';
 
 class NewTasksScreen extends StatelessWidget {
   const NewTasksScreen({Key? key}) : super(key: key);

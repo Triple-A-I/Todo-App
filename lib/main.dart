@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:recipes/blocobserver.dart';
-import 'package:recipes/business_logic/cubit/app_cubit.dart';
-import 'package:recipes/screens/home_screen.dart';
+import 'package:todo_app/screens/home_screen.dart';
+import 'blocobserver.dart';
+import 'business_logic/cubit/app_cubit.dart';
 
 void main() {
   BlocOverrides.runZoned(
