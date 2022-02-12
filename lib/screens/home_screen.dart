@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:recipes/business_logic/cubit/app_cubit.dart';
+import 'package:recipes/widgets/bottom_navigation_bar.dart';
 import 'package:recipes/widgets/default_form_field.dart';
 
 @immutable
@@ -31,7 +32,7 @@ class HomeScreen extends StatelessWidget {
             title: Text(appCubit.titles[appCubit.currentIndex]),
             elevation: .5,
           ),
-          body: state != AppGetDatabaseLoadingState
+          body: state is! AppGetDatabaseLoadingState
               ? appCubit.screens[appCubit.currentIndex]
               : const Center(
                   child: CircularProgressIndicator(),
@@ -41,8 +42,19 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               if (appCubit.isBottomSheetShowing) {
                 if (formKey.currentState!.validate()) {
-                  appCubit.insertIntoDatabase(titleController.text,
-                      timeController.text, dateController.text);
+                  appCubit
+                      .insertIntoDatabase(titleController.text,
+                          timeController.text, dateController.text)
+                      .then((value) {
+                    final snackBar = SnackBar(
+                        content: const Text('Inserted Successfully!'),
+                        backgroundColor: (Colors.black12),
+                        action: SnackBarAction(
+                          label: 'dismiss',
+                          onPressed: () {},
+                        ));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  });
 
                   // .then((value) {
                   //   appCubit
@@ -115,7 +127,7 @@ class HomeScreen extends StatelessWidget {
                                   onTap: () {
                                     showDatePicker(
                                       firstDate: DateTime.now(),
-                                      lastDate: DateTime.parse("2022-02-04"),
+                                      lastDate: DateTime.parse("2022-09-04"),
                                       initialDate: DateTime.now(),
                                       context: context,
                                     ).then((value) {
@@ -137,7 +149,6 @@ class HomeScreen extends StatelessWidget {
                     )
                     .closed
                     .then((value) {
-                  // Navigator.pop(context);
                   appCubit.changeBottomSheetState(
                       icon: Icons.edit, isShow: false);
                 });
@@ -145,27 +156,7 @@ class HomeScreen extends StatelessWidget {
               }
             },
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            onTap: (int index) {
-              appCubit.changeIndex(index);
-            },
-            currentIndex: appCubit.currentIndex,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.article),
-                label: 'Tasks',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.task),
-                label: 'Done',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.archive),
-                label: 'Archived',
-              ),
-            ],
-          ),
+          bottomNavigationBar: bottomNavigationBar(context),
         );
       },
     );
