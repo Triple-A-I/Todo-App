@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:recipes/constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:recipes/business_logic/cubit/app_cubit.dart';
 import 'package:recipes/models/task.dart';
 import 'package:recipes/widgets/task_item.dart';
 
@@ -8,11 +9,17 @@ class NewTasksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemBuilder: (context, index) =>
-          buildTaskItem(Task.fromJson(tasks[index])),
-      separatorBuilder: (context, index) => Divider(color: Colors.grey[400]),
-      itemCount: tasks.length,
+    return BlocConsumer<AppCubit, AppStates>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        return ListView.separated(
+          itemBuilder: (context, index) =>
+              buildTaskItem(Task.fromJson(AppCubit.get(context).tasks[index])),
+          separatorBuilder: (context, index) =>
+              Divider(color: Colors.grey[400]),
+          itemCount: AppCubit.get(context).tasks.length,
+        );
+      },
     );
   }
 }
