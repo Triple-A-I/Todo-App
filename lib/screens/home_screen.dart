@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:recipes/business_logic/cubit/app_cubit.dart';
 import 'package:recipes/widgets/default_form_field.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:intl/intl.dart';
 
+@immutable
+// ignore: must_be_immutable
 class HomeScreen extends StatelessWidget {
-  late Database database;
-  IconData fabIcon = Icons.edit;
   var titleController = TextEditingController();
   var dateController = TextEditingController();
   var timeController = TextEditingController();
   var scaffoldKey = GlobalKey<ScaffoldState>();
   var formKey = GlobalKey<FormState>();
-  bool isBottomSheetShowing = false;
+
+  HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     AppCubit appCubit = AppCubit.get(context);
     return BlocConsumer<AppCubit, AppStates>(
-      listener: (BuildContext context, AppStates state) {},
+      listener: (BuildContext context, AppStates state) {
+        if (state is AppInsertIntoDatabaseState) {
+          Navigator.pop(context);
+        }
+      },
       builder: (BuildContext context, AppStates state) {
         return Scaffold(
           key: scaffoldKey,
@@ -27,31 +31,25 @@ class HomeScreen extends StatelessWidget {
             title: Text(appCubit.titles[appCubit.currentIndex]),
             elevation: .5,
           ),
-          body: true
-              ? const Center(
+          body: state != AppGetDatabaseLoadingState
+              ? appCubit.screens[appCubit.currentIndex]
+              : const Center(
                   child: CircularProgressIndicator(),
-                )
-              : appCubit.screens[appCubit.currentIndex],
+                ),
           floatingActionButton: FloatingActionButton(
-            child: Icon(fabIcon),
+            child: Icon(appCubit.fabIcon),
             onPressed: () {
-              if (isBottomSheetShowing) {
+              if (appCubit.isBottomSheetShowing) {
                 if (formKey.currentState!.validate()) {
-                  insertIntoDatabase(titleController.text, timeController.text,
-                          dateController.text)
-                      .then((value) {
-                    getDataFromDataFromDatabase(database).then((value) {
-                      Navigator.pop(context);
-                      // setState(() {
-                      //   isBottomSheetShowing = false;
-                      //   fabIcon = Icons.edit;
-                      //   tasks = value;
-                      // });
-                    });
-                  });
+                  appCubit.insertIntoDatabase(titleController.text,
+                      timeController.text, dateController.text);
 
-                  // scaffoldKey.currentState!
-                  //     .showSnackBar(SnackBar(content: new Text("Added Succfully")));
+                  // .then((value) {
+                  //   appCubit
+                  //       .getDataFromDataFromDatabase(appCubit.database)
+                  //       .then((value) {
+                  //   });
+                  // });
                 }
               } else {
                 scaffoldKey.currentState!
@@ -140,24 +138,16 @@ class HomeScreen extends StatelessWidget {
                     .closed
                     .then((value) {
                   // Navigator.pop(context);
-                  isBottomSheetShowing = false;
-                  titleController.text = '';
-                  timeController.text = '';
-                  dateController.text = '';
-                  // setState(() {
-                  //   fabIcon = Icons.edit;
-                  // });
+                  appCubit.changeBottomSheetState(
+                      icon: Icons.edit, isShow: false);
                 });
-                isBottomSheetShowing = true;
-                // setState(() {
-                //   fabIcon = Icons.add;
-                // });
+                appCubit.changeBottomSheetState(icon: Icons.add, isShow: true);
               }
             },
           ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            onTap: (index) {
+            onTap: (int index) {
               appCubit.changeIndex(index);
             },
             currentIndex: appCubit.currentIndex,
@@ -179,43 +169,5 @@ class HomeScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  void createDatabase(BuildContext context) async {
-    database = await openDatabase(
-      'todo.db',
-      version: 1,
-      onCreate: (database, version) {
-        database
-            .execute(
-                "CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT, status TEXT)")
-            .then((value) {})
-            .catchError((error) {
-          showDialog(
-              context: context, builder: (context) => Text(error.toString()));
-        });
-      },
-      onOpen: (database) {
-        getDataFromDataFromDatabase(database).then((value) {
-          // setState(() {
-          //   tasks = value;
-          // });
-        });
-      },
-    );
-  }
-
-  Future insertIntoDatabase(String title, String time, String date) async {
-    return await database.transaction((txn) => txn
-        .rawInsert(
-            "INSERT INTO tasks(title, date, time, status) VALUES('$title','$date','$time','new')")
-        .then((value) {})
-        .catchError(
-          (error) {},
-        ));
-  }
-
-  Future<List<Map>> getDataFromDataFromDatabase(database) async {
-    return await database.rawQuery("SELECT * FROM tasks");
   }
 }
