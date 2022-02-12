@@ -8,11 +8,10 @@ import 'package:recipes/screens/home_screen.dart';
 void main() {
   BlocOverrides.runZoned(
     () {
-      // Use cubits...
+      runApp(const MyApp());
     },
     blocObserver: MyBlocObserver(),
   );
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -20,11 +19,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider(
-        create: (context) => AppCubit(),
-        child: HomeScreen(),
+    return BlocProvider(
+      create: (context) => AppCubit()..createDatabase(context),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomeScreen(),
       ),
     );
   }
