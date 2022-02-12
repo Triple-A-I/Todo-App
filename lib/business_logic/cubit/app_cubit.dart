@@ -46,11 +46,7 @@ class AppCubit extends Cubit<AppStates> {
         });
       },
       onOpen: (database) {
-        getDataFromDataFromDatabase(database).then((value) {
-          tasks = value;
-          print(tasks);
-          emit(AppGetDatabaseState());
-        });
+        getDataFromDataFromDatabase(database);
       },
     ).then((value) {
       database = value;
@@ -68,7 +64,23 @@ class AppCubit extends Cubit<AppStates> {
   }
 
   late Database database;
-  List<Map> tasks = [];
+  List<Map> newTasks = [];
+  List<Map> doneTasks = [];
+  List<Map> archivedTasks = [];
+
+  updateData({required String status, required int id}) async {
+    await database.rawUpdate(
+      'UPDATE tasks SET status = ? WHERE id = ?',
+      [status, id],
+    ).then((value) {
+      if (status == 'done') {
+        emit(AppADoneTaskState(value));
+      } else if (status == 'archived') {
+        emit(AppArchiveTaskState(value));
+      }
+      getDataFromDataFromDatabase(database);
+    });
+  }
 
   Future<void> insertIntoDatabase(
       String title, String time, String date) async {
@@ -77,19 +89,30 @@ class AppCubit extends Cubit<AppStates> {
                 "INSERT INTO tasks(title, date, time, status) VALUES('$title','$date','$time','new')")
             .then((value) {
           print('$value inserted to Database Successfully');
-          emit(AppInsertIntoDatabaseState());
-          getDataFromDataFromDatabase(database).then((value) {
-            tasks = value;
-            print(tasks);
-            emit(AppGetDatabaseState());
-          });
+          emit(AppInsertIntoDatabaseState(value));
+          getDataFromDataFromDatabase(database);
         }).catchError(
           (error) {},
         ));
   }
 
-  Future<List<Map>> getDataFromDataFromDatabase(database) async {
+  getDataFromDataFromDatabase(database) {
+    newTasks = [];
+    doneTasks = [];
+    archivedTasks = [];
     emit(AppGetDatabaseLoadingState());
-    return await database.rawQuery("SELECT * FROM tasks");
+    database.rawQuery("SELECT * FROM tasks").then((value) {
+      newTasks = value;
+      value.forEach((element) {
+        if (element['status'] == 'new') {
+          newTasks.add(element);
+        } else if (element['status'] == 'done') {
+          doneTasks.add(element);
+        } else {
+          archivedTasks.add(element);
+        }
+        emit(AppGetDatabaseState());
+      });
+    });
   }
 }
