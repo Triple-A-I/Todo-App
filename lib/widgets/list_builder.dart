@@ -33,8 +33,34 @@ Widget listBuilder(List<Map> tasks, BuildContext context, String status) {
               key: Key('${tasks[index]['id']}'),
               child:
                   buildTaskItem(Task.fromJson(tasks[index]), context, status),
-              onDismissed: (direction) =>
-                  appCubit.deleteData(id: tasks[index]['id']),
+              onDismissed: (direction) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: const Text(
+                      'Sure you want to delete the task?',
+                      style: TextStyle(color: Colors.black26, fontSize: 18),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          appCubit.deleteData(id: tasks[index]['id']);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('OK'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          appCubit
+                              .getDataFromDataFromDatabase(appCubit.database);
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
           },
           separatorBuilder: (context, index) =>
