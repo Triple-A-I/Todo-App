@@ -45,11 +45,7 @@ class HomeScreen extends StatelessWidget {
             title: Text(appCubit.titles[appCubit.currentIndex]),
             elevation: .5,
           ),
-          body: state is! AppGetDatabaseLoadingState
-              ? appCubit.screens[appCubit.currentIndex]
-              : const Center(
-                  child: CircularProgressIndicator(),
-                ),
+          body: appCubit.screens[appCubit.currentIndex],
           floatingActionButton: FloatingActionButton(
             child: Icon(appCubit.fabIcon),
             onPressed: () {
@@ -57,13 +53,6 @@ class HomeScreen extends StatelessWidget {
                 if (formKey.currentState!.validate()) {
                   appCubit.insertIntoDatabase(titleController.text,
                       timeController.text, dateController.text);
-
-                  // .then((value) {
-                  //   appCubit
-                  //       .getDataFromDataFromDatabase(appCubit.database)
-                  //       .then((value) {
-                  //   });
-                  // });
                 }
               } else {
                 scaffoldKey.currentState!
