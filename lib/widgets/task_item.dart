@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/business_logic/cubit/app_cubit.dart';
 import 'package:todo_app/models/task.dart';
 
-Widget buildTaskItem(Task task, BuildContext context) {
+Widget buildTaskItem(Task task, BuildContext context, String status) {
   AppCubit appCubit = AppCubit.get(context);
 
   return Padding(
@@ -37,22 +37,26 @@ Widget buildTaskItem(Task task, BuildContext context) {
             ],
           ),
         ),
-        IconButton(
+        if (status != 'archived')
+          IconButton(
             onPressed: () {
               appCubit.updateData(status: 'archived', id: task.id);
             },
             icon: const Icon(
               Icons.archive,
               color: Colors.black45,
-            )),
-        IconButton(
+            ),
+          ),
+        if (status != 'done')
+          IconButton(
             onPressed: () {
               appCubit.updateData(status: 'done', id: task.id);
             },
             icon: const Icon(
               Icons.task_alt_sharp,
               color: Colors.green,
-            ))
+            ),
+          )
       ],
     ),
   );
