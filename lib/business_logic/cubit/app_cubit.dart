@@ -74,10 +74,19 @@ class AppCubit extends Cubit<AppStates> {
       [status, id],
     ).then((value) {
       if (status == 'done') {
-        emit(AppADoneTaskState(value));
+        emit(AppADoneTaskState(id));
       } else if (status == 'archived') {
-        emit(AppArchiveTaskState(value));
+        emit(AppArchiveTaskState(id));
       }
+      getDataFromDataFromDatabase(database);
+    });
+  }
+
+  deleteData({required int id}) async {
+    await database
+        .rawDelete('DELETE FROM tasks WHERE id = ?', [id]).then((value) {
+      emit(AppADeleteTaskState(id));
+
       getDataFromDataFromDatabase(database);
     });
   }
@@ -88,6 +97,7 @@ class AppCubit extends Cubit<AppStates> {
             .rawInsert(
                 "INSERT INTO tasks(title, date, time, status) VALUES('$title','$date','$time','new')")
             .then((value) {
+          // ignore: avoid_print
           print('$value inserted to Database Successfully');
           emit(AppInsertIntoDatabaseState(value));
           getDataFromDataFromDatabase(database);
@@ -108,7 +118,7 @@ class AppCubit extends Cubit<AppStates> {
           newTasks.add(element);
         } else if (element['status'] == 'done') {
           doneTasks.add(element);
-        } else {
+        } else if (element['status'] == 'archived') {
           archivedTasks.add(element);
         }
         emit(AppGetDatabaseState());
