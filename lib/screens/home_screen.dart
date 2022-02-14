@@ -23,16 +23,19 @@ class HomeScreen extends StatelessWidget {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (BuildContext context, AppStates state) {
         if (state is AppInsertIntoDatabaseState) {
-          ScaffoldMessenger.of(context).showSnackBar(showSnackBar(
-              context, 'Task with id ${state.id} Inserted Successfully'));
+          ScaffoldMessenger.of(context).showSnackBar(
+              showSnackBar(context, 'Task ${state.id} Inserted Successfully'));
 
           Navigator.pop(context);
         } else if (state is AppADoneTaskState) {
-          ScaffoldMessenger.of(context).showSnackBar(showSnackBar(
-              context, 'Task with id ${state.id} Done Successfully'));
+          ScaffoldMessenger.of(context).showSnackBar(
+              showSnackBar(context, 'Task ${state.id} Done Successfully'));
         } else if (state is AppArchiveTaskState) {
-          ScaffoldMessenger.of(context).showSnackBar(showSnackBar(
-              context, 'Task with id ${state.id} Archived Successfully'));
+          ScaffoldMessenger.of(context).showSnackBar(
+              showSnackBar(context, 'Task ${state.id} Archived Successfully'));
+        } else if (state is AppADeleteTaskState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              showSnackBar(context, 'Task ${state.id} Deleted Successfully'));
         }
       },
       builder: (BuildContext context, AppStates state) {
